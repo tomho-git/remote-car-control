@@ -1,17 +1,35 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <button @mousedown="turnOn" @mouseup="turnOff"> test </button>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import axios from 'axios'
 export default {
   name: 'App',
   components: {
-    HelloWorld
+  },
+  data: function () {
+  return {
+    ledOnTimer: null, 
+  }
+},
+  methods:{
+    turnOn(){
+      this.ledOnTimer = setInterval(()=>{
+        axios.get('http://192.168.1.8:8080/?light=on')
+      .then(resp=>{
+        console.log(resp)
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+      }, 100)
+    }, 
+    turnOff(){
+      clearInterval(this.ledOnTimer);
+    }
   }
 }
 </script>
