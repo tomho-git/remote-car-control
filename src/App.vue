@@ -39,7 +39,7 @@ export default {
     moveForward() {
       this.wheelMotion = setInterval(() => {
         axios
-          .get("http://192.168.4.1:8080/?car=forward")
+          .get(process.env.VUE_APP_BACKEND_SERVER + "?car=forward")
           .then((resp) => {
             console.log(resp);
           })
@@ -51,7 +51,7 @@ export default {
     moveBackward(){
       this.wheelMotion = setInterval(() => {
         axios
-          .get("http://192.168.4.1:8080/?car=backward")
+          .get(process.env.VUE_APP_BACKEND_SERVER + "?car=backward")
           .then((resp) => {
             console.log(resp);
           })
