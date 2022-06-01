@@ -1,37 +1,71 @@
 <template>
   <div id="app">
-    <button @mousedown="turnOn" @mouseup="turnOff"> test </button>
+    <div>
+    <button
+      @mousedown="moveForward()"
+      @mouseup="stopMotion()"
+      @touchstart="moveForward()"
+      @touchend="stopMotion()"
+      class="noselect button"
+    >
+      ↑
+    </button>
+    </div>
+    <div>
+    <button
+      @mousedown="moveBackward()"
+      @mouseup="stopMotion()"
+      @touchstart="moveBackward()"
+      @touchend="stopMotion()"
+      class="noselect button"
+    >
+      ↓
+    </button>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
-  name: 'App',
-  components: {
-  },
+  name: "App",
+  components: {},
   data: function () {
-  return {
-    ledOnTimer: null, 
-  }
-},
-  methods:{
-    turnOn(){
-      this.ledOnTimer = setInterval(()=>{
-        axios.get('http://192.168.1.8:8080/?light=on')
-      .then(resp=>{
-        console.log(resp)
-      })
-      .catch(err=>{
-        console.log(err)
-      })
-      }, 100)
-    }, 
-    turnOff(){
-      clearInterval(this.ledOnTimer);
-    }
-  }
-}
+    return {
+      wheelMotion: null,
+    };
+  },
+  methods: {
+    moveForward() {
+      this.wheelMotion = setInterval(() => {
+        axios
+          .get("http://192.168.4.1:8080/?car=forward")
+          .then((resp) => {
+            console.log(resp);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }, 1000);
+    },
+    moveBackward(){
+      this.wheelMotion = setInterval(() => {
+        axios
+          .get("http://192.168.4.1:8080/?car=backward")
+          .then((resp) => {
+            console.log(resp);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }, 1000);
+    },
+    stopMotion() {
+      clearInterval(this.wheelMotion);
+      axios.get("http://192.168.4.1:8080/?car=stop")
+    },
+  },
+};
 </script>
 
 <style>
@@ -42,5 +76,18 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+  supported by Chrome, Edge, Opera and Firefox */
+}
+.button{
+  font-size: 10vh;
+  border: transparent
 }
 </style>
