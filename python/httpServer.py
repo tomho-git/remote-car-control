@@ -18,8 +18,12 @@ recordingPosition = False
 
 
 
-class GetHandler(BaseHTTPRequestHandler):
 
+class GetHandler(BaseHTTPRequestHandler):
+    def end_headers (self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        BaseHTTPRequestHandler.end_headers(self)
+        
     def do_GET(self):
         parsed_path = urlparse(self.path); 
         print(parsed_path.query)
@@ -144,4 +148,3 @@ if __name__ == '__main__':
     p2.start()
     
     
-

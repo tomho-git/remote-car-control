@@ -41,9 +41,11 @@ export default {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=forward")
           .then((resp) => {
+            console.log('ok')
             console.log(resp);
           })
           .catch((err) => {
+            console.log('error')
             console.log(err);
           });
       }, 1000);
