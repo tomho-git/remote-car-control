@@ -78,6 +78,7 @@ export default {
     return {
       wheelMotion: null,
       messageList: "",
+      lastTimeStamp: "",
     };
   },
   methods: {
@@ -141,12 +142,15 @@ export default {
         });
     },
     addMessage(message) {
-      var messageWithTimeStamp =
-        "<" + this.getCurrentTimeStamp() + "> " + message;
-      if (this.messageList) {
-        this.messageList = this.messageList + "\n" + messageWithTimeStamp;
-      } else {
-        this.messageList = messageWithTimeStamp;
+      if (this.lastTimeStamp != this.getCurrentTimeStamp()) {
+        var messageWithTimeStamp =
+          "<" + this.getCurrentTimeStamp() + "> " + message;
+        if (this.messageList) {
+          this.messageList = this.messageList + "\n" + messageWithTimeStamp;
+        } else {
+          this.messageList = messageWithTimeStamp;
+        }
+        this.lastTimeStamp = this.getCurrentTimeStamp()
       }
     },
     getCurrentTimeStamp() {
