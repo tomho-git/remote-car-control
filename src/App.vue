@@ -1,26 +1,52 @@
 <template>
   <div id="app">
     <div>
-    <button
-      @mousedown="moveForward()"
-      @mouseup="stopMotion()"
-      @touchstart="moveForward()"
-      @touchend="stopMotion()"
-      class="noselect button"
-    >
-      ↑
-    </button>
+      <button
+        @mousedown="moveForward()"
+        @mouseup="stopMotion()"
+        @touchstart="moveForward()"
+        @touchend="stopMotion()"
+        class="noselect button"
+      >
+        ↑
+      </button>
+    </div>
+    <div class="rotateButtons">
+      <button
+        @mousedown="rotateAntiClockwise()"
+        @mouseup="stopMotion()"
+        @touchstart="rotateAntiClockwise()"
+        @touchend="stopMotion()"
+        class="noselect button"
+      >
+        ↶
+      </button>
+      <button
+        @mousedown="rotateClockwise()"
+        @mouseup="stopMotion()"
+        @touchstart="rotateClockwise()"
+        @touchend="stopMotion()"
+        class="noselect button"
+      >
+        ↷
+      </button>
     </div>
     <div>
-    <button
-      @mousedown="moveBackward()"
-      @mouseup="stopMotion()"
-      @touchstart="moveBackward()"
-      @touchend="stopMotion()"
-      class="noselect button"
-    >
-      ↓
-    </button>
+      <button
+        @mousedown="moveBackward()"
+        @mouseup="stopMotion()"
+        @touchstart="moveBackward()"
+        @touchend="stopMotion()"
+        class="noselect button"
+      >
+        ↓
+      </button>
+    </div>
+    <div class="messageContainer">
+      Message Box:
+      <div class="messageBox">
+        <div class="textBox">{{ message }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -33,6 +59,7 @@ export default {
   data: function () {
     return {
       wheelMotion: null,
+      message: "this is test message",
     };
   },
   methods: {
@@ -40,31 +67,37 @@ export default {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=forward")
-          .then((resp) => {
-            console.log('ok')
-            console.log(resp);
-          })
-          .catch((err) => {
-            console.log('error')
-            console.log(err);
-          });
+          .then((resp) => {})
+          .catch((err) => {});
       }, 1000);
     },
-    moveBackward(){
+    moveBackward() {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=backward")
-          .then((resp) => {
-            console.log(resp);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+          .then((resp) => {})
+          .catch((err) => {});
       }, 1000);
+    },
+    rotateAntiClockwise() {
+      this.wheelMotion = setInterval(() => {
+        axios
+          .get(process.env.VUE_APP_BACKEND_SERVER + "?car=anticlockwise")
+          .then((resp) => {})
+          .catch((err) => {});
+      }, 300);
+    },
+    rotateClockwise() {
+      this.wheelMotion = setInterval(() => {
+        axios
+          .get(process.env.VUE_APP_BACKEND_SERVER + "?car=clockwise")
+          .then((resp) => {})
+          .catch((err) => {});
+      }, 300);
     },
     stopMotion() {
       clearInterval(this.wheelMotion);
-      axios.get("http://192.168.4.1:8080/?car=stop")
+      axios.get("http://192.168.4.1:8080/?car=stop");
     },
   },
 };
@@ -88,8 +121,23 @@ export default {
   user-select: none; /* Non-prefixed version, currently
   supported by Chrome, Edge, Opera and Firefox */
 }
-.button{
+.button {
   font-size: 10vh;
-  border: transparent
+  border: transparent;
+}
+.messageBox {
+  border: 1px solid black;
+}
+.textBox {
+  min-height: 30vh;
+  width: 100%;
+}
+.messageContainer {
+  margin-top: 5vh;
+  text-align: left;
+}
+.rotateButtons {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
