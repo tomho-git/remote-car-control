@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="noselect">
     <div>
       <button
         @mousedown="moveForward()"
@@ -8,7 +8,11 @@
         @touchend="stopMotion()"
         class="noselect button"
       >
-        ↑
+        <img
+          style="width: 8vh"
+          src="./assets/up-arrow.png"
+          class="imageDisableDrag"
+        />
       </button>
     </div>
     <div class="rotateButtons">
@@ -19,7 +23,11 @@
         @touchend="stopMotion()"
         class="noselect button"
       >
-        ↶
+        <img
+          style="width: 8vh"
+          src="./assets/anticlockwise.png"
+          class="imageDisableDrag"
+        />
       </button>
       <button
         @mousedown="rotateClockwise()"
@@ -28,7 +36,11 @@
         @touchend="stopMotion()"
         class="noselect button"
       >
-        ↷
+        <img
+          style="width: 8vh"
+          src="./assets/clockwise.png"
+          class="imageDisableDrag"
+        />
       </button>
     </div>
     <div>
@@ -39,13 +51,17 @@
         @touchend="stopMotion()"
         class="noselect button"
       >
-        ↓
+        <img
+          style="width: 8vh"
+          src="./assets/down-arrow.png"
+          class="imageDisableDrag"
+        />
       </button>
     </div>
     <div class="messageContainer">
       Message Box:
       <div class="messageBox">
-        <div class="textBox">{{ message }}</div>
+        <div class="textBox" v-html="messageList"></div>
       </div>
     </div>
   </div>
@@ -53,13 +69,15 @@
 
 <script>
 import axios from "axios";
+import moment from "moment";
+
 export default {
   name: "App",
   components: {},
   data: function () {
     return {
       wheelMotion: null,
-      message: "this is test message",
+      messageList: "",
     };
   },
   methods: {
@@ -67,39 +85,75 @@ export default {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=forward")
-          .then((resp) => {})
-          .catch((err) => {});
+          .then((resp) => {
+            this.addMessage("Move backward success");
+          })
+          .catch((err) => {
+            this.addMessage("ERROR: " + err);
+          });
       }, 1000);
     },
     moveBackward() {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=backward")
-          .then((resp) => {})
-          .catch((err) => {});
+          .then((resp) => {
+            this.addMessage("Move backward success");
+          })
+          .catch((err) => {
+            this.addMessage("ERROR: " + err);
+          });
       }, 1000);
     },
     rotateAntiClockwise() {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=anticlockwise")
-          .then((resp) => {})
-          .catch((err) => {});
+          .then((resp) => {
+            this.addMessage("Rotate anti-clockwise success");
+          })
+          .catch((err) => {
+            this.addMessage("ERROR: " + err);
+          });
       }, 300);
     },
     rotateClockwise() {
       this.wheelMotion = setInterval(() => {
         axios
           .get(process.env.VUE_APP_BACKEND_SERVER + "?car=clockwise")
-          .then((resp) => {})
-          .catch((err) => {});
+          .then((resp) => {
+            this.addMessage("Rotate clockwise success");
+          })
+          .catch((err) => {
+            this.addMessage("ERROR: " + err);
+          });
       }, 300);
     },
     stopMotion() {
       clearInterval(this.wheelMotion);
-      axios.get("http://192.168.4.1:8080/?car=stop");
+      axios
+        .get(process.env.VUE_APP_BACKEND_SERVER + "?car=stop")
+        .then((resp) => {
+          this.addMessage("Stop success");
+        })
+        .err((err) => {
+          this.addMessage("ERROR: " + err);
+        });
+    },
+    addMessage(message) {
+      var messageWithTimeStamp =
+        "<" + this.getCurrentTimeStamp() + "> " + message;
+      if (this.messageList) {
+        this.messageList = this.messageList + "\n" + messageWithTimeStamp;
+      } else {
+        this.messageList = messageWithTimeStamp;
+      }
+    },
+    getCurrentTimeStamp() {
+      return moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     },
   },
+  mounted() {},
 };
 </script>
 
@@ -124,13 +178,17 @@ export default {
 .button {
   font-size: 10vh;
   border: transparent;
+  padding: 0 1vh;
 }
 .messageBox {
   border: 1px solid black;
 }
 .textBox {
-  min-height: 30vh;
+  font-size: 2.5vh;
+  height: 30vh;
   width: 100%;
+  white-space: pre-wrap;
+  overflow: scroll;
 }
 .messageContainer {
   margin-top: 5vh;
@@ -139,5 +197,13 @@ export default {
 .rotateButtons {
   display: flex;
   justify-content: space-between;
+}
+.imageDisableDrag {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 </style>
