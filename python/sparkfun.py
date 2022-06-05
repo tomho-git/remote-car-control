@@ -11,7 +11,7 @@ import json
 
 
 
-arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=.1)
+# arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=.1)
 port = serial.Serial('/dev/ttyACM0', baudrate=38400, timeout=1)
 gps = UbloxGps(port)
 # for positioning
@@ -50,10 +50,10 @@ class GetHandler(BaseHTTPRequestHandler):
         return
 
 def write_read_arduino(x):
-    arduino.write(bytes(x, 'utf-8'))
+    # arduino.write(bytes(x, 'utf-8'))
     time.sleep(0.05)
-    data = arduino.readline()
-    return data
+    # data = arduino.readline()
+    # return data
 
 def queryProcess(queryInput):
     if(queryInput == ""):
