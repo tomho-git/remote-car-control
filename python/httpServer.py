@@ -6,6 +6,8 @@ import time
 import serial
 import threading
 import csv
+import json
+
 
 
 arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=.1)
@@ -27,28 +29,12 @@ class GetHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urlparse(self.path); 
         print(parsed_path.query)
-        # message = '\n'.join([
-        #     'CLIENT VALUES:',
-        #     'client_address=%s (%s)' % (self.client_address,
-        #         self.address_string()),
-        #     'command=%s' % self.command,
-        #     'path=%s' % self.path,
-        #     'real path=%s' % parsed_path.path,
-        #     'query=%s' % parsed_path.query,
-        #     'request_version=%s' % self.request_version,
-        #     '',
-        #     'SERVER VALUES:',
-        #     'server_version=%s' % self.server_version,
-        #     'sys_version=%s' % self.sys_version,
-        #     'protocol_version=%s' % self.protocol_version,
-        #     '',
-        #     ])
+        message = responseMessage(parsed_path.query)
         self.send_response(responseCode(parsed_path.query))
         self.end_headers()
         queryProcess(parsed_path.query)
 
-
-        # self.wfile.write(message)
+        self.wfile.write(message.encode())
         return
 
     def do_POST(self):
@@ -108,6 +94,11 @@ def responseCode(queryInput):
         return endGps()
     return 200
 
+def responseMessage(queryInput):
+    query = queryInput.split("&")
+    if('gps=latest' in query):
+        return getLatestGPS()
+    return ''
 
 def startGps(): 
     try:
@@ -119,18 +110,29 @@ def startGps():
     except (ValueError, IOError) as err:
         return 500
     
-    
 
 def endGps():
     try:
         global recordingPosition
         recordingPosition = False
-        exportCsv()
+        exportToCsv()
         return 200
     except (ValueError, IOError) as err:
         return 500
 
-def exportCsv():
+def getLatestGPS(): 
+    geo = gps.geo_coords(); 
+    loc = {
+            "lat": geo.lat,
+            "long": geo.lon,
+            "height": geo.height,
+            "accuracy": geo.hAcc
+           }
+    message = json.dumps(loc)
+    return message
+         
+
+def exportToCsv():
     global csvData
     global csvHeader
     with open('result.csv', 'w', encoding='UTF8') as f:
