@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="noselect allContainer">
+  <div id="app" class="noselect allContainer" v-loading="isLoading">
     <div>
       <button
         @mousedown="moveForward()"
@@ -113,6 +113,7 @@ export default {
       isRecording: false,
       dialogVisible: false,
       currentLocation: {},
+      isLoading: false,
     };
   },
   methods: {
@@ -176,26 +177,32 @@ export default {
         });
     },
     startRecording() {
+      this.isloading = true;
       axios
         .get(process.env.VUE_APP_BACKEND_SERVER + "?gps=start")
         .then((resp) => {
           this.addMessage("Start Recording");
           this.isRecording = true;
+          this.isloading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
+          this.isloading = false;
         });
     },
 
     stopRecording() {
+      this.isloading = true;
       axios
         .get(process.env.VUE_APP_BACKEND_SERVER + "?gps=end")
         .then((resp) => {
           this.addMessage("Stop Recording");
           this.isRecording = false;
+          this.isloading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
+          this.isloading = false;
         });
     },
     addMessage(message) {
@@ -211,7 +218,7 @@ export default {
             "</div>";
         } else {
           messageWithTimeStamp =
-            "<div><" + this.getCurrentTimeStamp() + "> " + message + '</div>';
+            "<div><" + this.getCurrentTimeStamp() + "> " + message + "</div>";
         }
         if (this.messageList) {
           this.messageList = this.messageList + messageWithTimeStamp;
@@ -230,15 +237,17 @@ export default {
       return moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     },
     showCurrentLocation() {
-      console.log("123456");
+      this.isLoading = true;
       axios
         .get(process.env.VUE_APP_BACKEND_SERVER + "?gps=latest")
         .then((resp) => {
           this.currentLocation = resp.data;
           this.dialogVisible = true;
+          this.isloading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
+          this.isloading = false;
         });
     },
   },
@@ -313,6 +322,7 @@ body {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-::v-deep .el-button.is-round {
+.el-loading-mask {
+  background: rgba(255, 255, 255, 0.7);
 }
 </style>
