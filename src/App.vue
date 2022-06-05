@@ -89,7 +89,7 @@
         <div class="textBox" v-html="messageList" id="messageTextBox"></div>
       </div>
     </div>
-    <el-dialog title="Tips" :visible.sync="dialogVisible" width="100%">
+    <el-dialog title="Current Location" :visible.sync="dialogVisible" width="100%">
       <div>Latitude: {{ currentLocation.lat }}</div>
       <div>Longitude: {{ currentLocation.long }}</div>
       <div>Height: (in mm){{ currentLocation.height }}</div>
@@ -177,32 +177,32 @@ export default {
         });
     },
     startRecording() {
-      this.isloading = true;
+      this.isLoading = true;
       axios
         .get(process.env.VUE_APP_BACKEND_SERVER + "?gps=start")
         .then((resp) => {
           this.addMessage("Start Recording");
           this.isRecording = true;
-          this.isloading = false;
+          this.isLoading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
-          this.isloading = false;
+          this.isLoading = false;
         });
     },
 
     stopRecording() {
-      this.isloading = true;
+      this.isLoading = true;
       axios
         .get(process.env.VUE_APP_BACKEND_SERVER + "?gps=end")
         .then((resp) => {
           this.addMessage("Stop Recording");
           this.isRecording = false;
-          this.isloading = false;
+          this.isLoading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
-          this.isloading = false;
+          this.isLoading = false;
         });
     },
     addMessage(message) {
@@ -226,7 +226,9 @@ export default {
           this.messageList = messageWithTimeStamp;
         }
         this.lastTimeStamp = this.getCurrentTimeStamp();
-        this.scrolltoBottom();
+        setTimeout(() => {
+          this.scrolltoBottom();
+        }, 50);
       }
     },
     scrolltoBottom() {
@@ -243,11 +245,11 @@ export default {
         .then((resp) => {
           this.currentLocation = resp.data;
           this.dialogVisible = true;
-          this.isloading = false;
+          this.isLoading = false;
         })
         .catch((err) => {
           this.addMessage("ERROR: " + err);
-          this.isloading = false;
+          this.isLoading = false;
         });
     },
   },
