@@ -123,13 +123,23 @@ def endGps():
         return 500
 
 def getLatestGPS(): 
-    geo = gps.geo_coords(); 
-    loc = {
-            "lat": geo.lat,
-            "long": geo.lon,
-            "height": geo.height,
-            "accuracy": geo.hAcc
-           }
+    global csvData
+    if(recordingPosition):
+        lastPosition = csvData[-1]
+        loc = {
+            "lat": lastPosition[1],
+            "long": lastPosition[2],
+            "height": lastPosition[3],
+            "accuracy": lastPosition[4]
+        }
+    else:
+        geo = gps.geo_coords(); 
+        loc = {
+                "lat": geo.lat,
+                "long": geo.lon,
+                "height": geo.height,
+                "accuracy": geo.hAcc
+            }
     message = json.dumps(loc)
     return message
          
@@ -137,7 +147,7 @@ def getLatestGPS():
 def exportToCsv():
     global csvData
     global csvHeader
-    filename = str(datetime.now()) + '.csv'
+    filename = '/home/admin/Desktop/result/'+str(datetime.now()) + '.csv'
     with open(filename, 'w', encoding='UTF8') as f:
         writer = csv.writer(f)
         writer.writerow(csvHeader)
