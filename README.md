@@ -1,4 +1,4 @@
-# led-control
+# remote-car-control
 use button to control arduino light turn on and off frontend project. 
 
 ## Project setup

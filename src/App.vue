@@ -1,5 +1,10 @@
 <template>
-  <div id="app" class="noselect allContainer" v-loading="isLoading">
+  <div
+    id="app"
+    class="noselect allContainer"
+    v-loading="isLoading"
+    v-if="showControl"
+  >
     <div>
       <button
         @mousedown="moveForward()"
@@ -89,18 +94,29 @@
         <div class="textBox" v-html="messageList" id="messageTextBox"></div>
       </div>
     </div>
-    <el-dialog title="Current Location" :visible.sync="dialogVisible" width="100%">
+    <el-dialog
+      title="Current Location"
+      :visible.sync="dialogVisible"
+      width="100%"
+    >
       <div>Latitude: {{ currentLocation.lat }}</div>
       <div>Longitude: {{ currentLocation.long }}</div>
       <div>Height: (in mm){{ currentLocation.height }}</div>
       <div>Accuracy: (in mm){{ currentLocation.accuracy }}</div>
     </el-dialog>
   </div>
+  <div v-else class="allContainer">
+    <input type="file" ref="doc" @change="readFile()" />
+    <div id="mapContainer" class="mapContainer"></div>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 import moment from "moment";
+import * as turf from "@turf/turf";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
 export default {
   name: "App",
@@ -114,9 +130,71 @@ export default {
       dialogVisible: false,
       currentLocation: {},
       isLoading: false,
+      //for map
+      showControl: false,
+      center: [22.302711, 114.177216], //hong kong lat long
+      fileContent: [],
+      fileLatLong: [],
+      mapObject: {},
     };
   },
   methods: {
+    setupLeafletMap: function () {
+      this.mapObject = L.map("mapContainer").setView(this.center, 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 19,
+      }).addTo(this.mapObject);
+    },
+    addPolygon: function () {
+      var latlngs = [this.fileLatLong];
+
+      var polygon = L.polygon(latlngs, { color: "red" }).addTo(this.mapObject);
+      this.mapObject.fitBounds(polygon.getBounds());
+    },
+    splitFileIntoLatLong() {
+      for (let i = 1; i < this.fileContent.length; i++) {
+        var details = this.fileContent[i].split(",");
+        if (details && details[1] && details[2]) {
+          this.fileLatLong.push([details[1], details[2]]);
+        }
+      }
+    },
+    readFile() {
+      this.file = this.$refs.doc.files[0];
+      const reader = new FileReader();
+      if (this.file.name.includes(".csv")) {
+        reader.onload = (res) => {
+          this.fileContent = res.target.result.split(/\r\n|\n/);
+          this.splitFileIntoLatLong();
+          this.addPolygon();
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(this.file);
+      } else {
+        this.content = "check the console for file output";
+        reader.onload = (res) => {
+          console.log(res.target.result);
+        };
+        reader.onerror = (err) => console.log(err);
+        reader.readAsText(this.file);
+      }
+    },
+    calculateArea() {
+      var polygon = turf.polygon([
+        [
+          [108.09876, 37.200787],
+          [106.398901, 33.648651],
+          [114.972103, 33.340483],
+          [113.715685, 37.845557],
+          [108.09876, 37.200787],
+        ],
+      ]);
+
+      var area = turf.area(polygon);
+      return area;
+    },
     moveForward() {
       this.wheelMotion = setInterval(() => {
         axios
@@ -253,7 +331,9 @@ export default {
         });
     },
   },
-  mounted() {},
+  mounted() {
+    this.setupLeafletMap();
+  },
 };
 </script>
 
@@ -326,5 +406,9 @@ body {
 }
 .el-loading-mask {
   background: rgba(255, 255, 255, 0.7);
+}
+.mapContainer {
+  height: 90vh;
+  width: 100vw;
 }
 </style>
