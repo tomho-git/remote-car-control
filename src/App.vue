@@ -136,6 +136,7 @@ export default {
       fileContent: [],
       fileLatLong: [],
       mapObject: {},
+      polygon: {},
     };
   },
   methods: {
@@ -149,11 +150,17 @@ export default {
     },
     addPolygon: function () {
       var latlngs = [this.fileLatLong];
-
-      var polygon = L.polygon(latlngs, { color: "red" }).addTo(this.mapObject);
-      this.mapObject.fitBounds(polygon.getBounds());
+      if (Object.keys(this.polygon).length == 0) {
+        this.polygon = L.polygon(latlngs, { color: "red" }).addTo(
+          this.mapObject
+        );
+      } else {
+        this.polygon.setLatLngs(latlngs);
+      }
+      this.mapObject.fitBounds(this.polygon.getBounds());
     },
     splitFileIntoLatLong() {
+      this.fileLatLong = []; 
       for (let i = 1; i < this.fileContent.length; i++) {
         var details = this.fileContent[i].split(",");
         if (details && details[1] && details[2]) {
