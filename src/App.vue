@@ -107,6 +107,7 @@
   </div>
   <div v-else class="allContainer">
     <input type="file" ref="doc" @change="readFile()" />
+    <!-- <div v-if="fileLatLong">{{ calculateArea() }}</div> -->
     <div id="mapContainer" class="mapContainer"></div>
   </div>
 </template>
@@ -151,16 +152,16 @@ export default {
     addPolygon: function () {
       var latlngs = [this.fileLatLong];
       if (Object.keys(this.polygon).length == 0) {
-        this.polygon = L.polygon(latlngs, { color: "red" }).addTo(
-          this.mapObject
-        );
+        this.polygon = L.polygon(latlngs, { color: "red" })
+          .addTo(this.mapObject)
+          .bindPopup("<div class='area'>area: " + this.calculateArea().area + "(m2)</div> <div class='length'>length: " + this.calculateArea().length + "(km)</div>");
       } else {
         this.polygon.setLatLngs(latlngs);
       }
       this.mapObject.fitBounds(this.polygon.getBounds());
     },
     splitFileIntoLatLong() {
-      this.fileLatLong = []; 
+      this.fileLatLong = [];
       for (let i = 1; i < this.fileContent.length; i++) {
         var details = this.fileContent[i].split(",");
         if (details && details[1] && details[2]) {
@@ -189,18 +190,19 @@ export default {
       }
     },
     calculateArea() {
-      var polygon = turf.polygon([
-        [
-          [108.09876, 37.200787],
-          [106.398901, 33.648651],
-          [114.972103, 33.340483],
-          [113.715685, 37.845557],
-          [108.09876, 37.200787],
-        ],
-      ]);
-
+      if (this.fileLatLong.length == 0)
+        return {
+          area: 0,
+          length: 0,
+        };
+      //calculate area
+      var polygon = turf.multiPolygon([[this.fileLatLong]]);
       var area = turf.area(polygon);
-      return area;
+      var length = turf.length(polygon, { units: "kilometers" });
+      return {
+        area: area, // in m2
+        length: length, // in km
+      };
     },
     moveForward() {
       this.wheelMotion = setInterval(() => {
