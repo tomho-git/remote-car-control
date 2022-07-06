@@ -143,10 +143,9 @@ export default {
   methods: {
     setupLeafletMap: function () {
       this.mapObject = L.map("mapContainer").setView(this.center, 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 19,
+      L.tileLayer("http://{s}.google.com/vt?lyrs=s,h&x={x}&y={y}&z={z}", {
+        maxZoom: 20,
+        subdomains: ["mt0", "mt1", "mt2", "mt3"],
       }).addTo(this.mapObject);
     },
     addPolygon: function () {
@@ -154,7 +153,13 @@ export default {
       if (Object.keys(this.polygon).length == 0) {
         this.polygon = L.polygon(latlngs, { color: "red" })
           .addTo(this.mapObject)
-          .bindPopup("<div class='area'>area: " + this.calculateArea().area + "(m2)</div> <div class='length'>length: " + this.calculateArea().length + "(km)</div>");
+          .bindPopup(
+            "<div class='area'>area: " +
+              this.calculateArea().area +
+              "(m2)</div> <div class='length'>length: " +
+              this.calculateArea().length +
+              "(km)</div>"
+          );
       } else {
         this.polygon.setLatLngs(latlngs);
       }
@@ -200,8 +205,8 @@ export default {
       var area = turf.area(polygon);
       var length = turf.length(polygon, { units: "kilometers" });
       return {
-        area: area, // in m2
-        length: length, // in km
+        area: Math.round(area*1000)/1000.0, // in m2
+        length: Math.round(length*1000)/1000.0, // in km
       };
     },
     moveForward() {
