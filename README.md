@@ -1,5 +1,9 @@
 # remote-car-control
-use button to control arduino light turn on and off frontend project. 
+use button to control arduino light turn on and off project. 
+arduino code: arduino/mains
+backend project: under python folder
+frontend project: others
+
 
 ## Project setup
 ```
